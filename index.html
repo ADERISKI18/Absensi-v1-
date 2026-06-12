@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi SMPN 2 Sukaratu</title>
+    <!-- Library QR Scanner -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        :root {
+            --blue: #2563EB;
+            --yellow: #FDE047;
+            --dark: #1E293B;
+            --light-blue: #EFF6FF;
+            --green: #10B981;
+            --orange: #F97316;
+            --border-style: 3px solid #1E293B;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--yellow);
+            color: var(--dark);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: white;
+            border-radius: 28px;
+            padding: 25px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 8px 8px 0px var(--dark);
+            border: var(--border-style);
+            box-sizing: border-box;
+            margin: 20px 0;
+        }
+        .badge {
+            background-color: var(--blue);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            border: 2px solid var(--dark);
+        }
+        h1 {
+            color: var(--dark);
+            font-size: 26px;
+            margin: 0 0 5px 0;
+            font-weight: 800;
+        }
+        p.subtitle {
+            color: #64748B;
+            font-size: 14px;
+            margin: 0 0 20px 0;
+        }
+        select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 16px;
+            border: var(--border-style);
+            font-size: 16px;
+            margin-bottom: 15px;
+            outline: none;
+            font-weight: bold;
+            color: var(--blue);
+            background-color: var(--light-blue);
+        }
+        #reader {
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 3px dashed var(--blue) !important;
+        }
+        .btn {
+            width: 100%;
+            color: var(--dark);
+            border: var(--border-style);
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px var(--dark);
+            transition: all 0.1s ease;
+            margin-bottom: 12px;
+        }
+        .btn-download { background-color: var(--blue); color: white; }
+        .btn-clear { background-color: #F87171; color: white; }
+        .btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 1px 1px 0px var(--dark);
+        }
+        
+        /* Tampilan List Absen */
+        .history-section {
+            margin-top: 25px;
+            text-align: left;
+            border-top: 2px dashed #CBD5E1;
+            padding-top: 20px;
+        }
+        .history-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .history-list {
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .history-card {
+            background-color: var(--light-blue);
+            border: 2px solid var(--dark);
+            border-radius: 14px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 2px 2px 0px var(--dark);
+        }
+        .card-info h4 { margin: 0 0 4px 0; font-size: 14px; }
+        .card-info span { font-size: 12px; color: #64748B; }
+        .status-badge {
+            border: 2px solid var(--dark);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 11px;
+            color: white;
+        }
+        .badge-masuk { background-color: var(--green); }
+        .badge-pulang { background-color: var(--orange); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <center><div class="badge">🏫 SMPN 2 SUKARATU</div></center>
+    <h1>ABSENSI DIGITAL</h1>
+    <p class="subtitle">Silakan pilih kelas sebelum men-scan QR Code!</p>
+
+    <!-- Dropdown Kelas -->
+    <select id="kelas">
+        <option value="" disabled selected>⚡ PILIH KELAS KAMU</option>
+        <optgroup label="KELAS 7">
+            <option value="7A">7A</option> <option value="7B">7B</option> <option value="7C">7C</option>
+            <option value="7D">7D</option> <option value="7E">7E</option> <option value="7F">7F</option>
+        </optgroup>
+        <optgroup label="KELAS 8">
+            <option value="8A">8A</option> <option value="8B">8B</option> <option value="8C">8C</option>
+            <option value="8D">8D</option> <option value="8E">8E</option> <option value="8F">8F</option>
+        </optgroup>
+        <optgroup label="KELAS 9">
+            <option value="9A">9A</option> <option value="9B">9B</option> <option value="9C">9C</option>
+            <option value="9D">9D</option> <option value="9E">9E</option> <option value="9F">9F</option>
+        </optgroup>
+    </select>
+
+    <!-- Kamera Scanner -->
+    <div id="reader"></div>
+
+    <button class="btn btn-download" onclick="downloadExcel()">📥 DOWNLOAD DATA UNTUK WPS OFFICE</button>
+    <button class="btn btn-clear" onclick="hapusData()">🗑️ RESET SEMUA DATA</button>
+    
+    <div class="history-section">
+        <div class="history-title">
+            <span>✨ Log Absensi Hari Ini</span>
+            <span style="color: var(--blue);" id="totalData">0 Anak</span>
+        </div>
+        <div class="history-list" id="historyContainer"></div>
+    </div>
+</div>
+
+<script>
+    let isProcessing = false;
+
+    // FUNGSI SUARA GOOGLE (Google Voice Text-To-Speech)
+    function speakGoogle(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // Hentikan suara sebelumnya jika tabrakan
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID'; // Menggunakan Bahasa Indonesia resmi
+            utterance.pitch = 1.0;
+            utterance.rate = 1.0; // Kecepatan normal bicara Google
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // Fungsi Render Tampilan List di Web
+    function renderHistory() {
+        let dataLokal = JSON.parse(localStorage.getItem('dataAbsensi') || '[]');
+        document.getElementById('totalData').innerText = `${dataLokal.length} Log`;
+        
+        const container = document.getElementById('historyContainer');
+        container.innerHTML = ''; 
+
+        if(dataLokal.length === 0) {
+            container.innerHTML = `<p style="color:#94A3B8; font-size:13px; text-align:center; margin-top:15px;">Belum ada riwayat scan.</p>`;
+            return;
+        }
+
+        // Tampilkan data terbaru paling atas
+        dataLokal.slice().reverse().forEach(siswa => {
+            const card = document.createElement('div');
+            card.className = 'history-card';
+            let badgeClass = siswa.status === 'Masuk' ? 'badge-masuk' : 'badge-pulang';
+            card.innerHTML = `
+                <div class="card-info">
+                    <h4>${siswa.nama} (${siswa.kelas})</h4>
+                    <span>🕒 ${siswa.waktu.split(' ')[1] || siswa.waktu}</span>
+                </div>
+                <div class="status-badge ${badgeClass}">${siswa.status.toUpperCase()}</div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // Fungsi Utama Saat Kamera Berhasil Mendeteksi QR
+    function onScanSuccess(decodedText, decodedResult) {
+        if (isProcessing) return;
+
+        const kelasSelector = document.getElementById('kelas');
+        const kelasDipilih = kelasSelector.value;
+
+        if (!kelasDipilih) {
+            isProcessing = true;
+            speakGoogle("Silakan pilih kelas terlebih dahulu");
+            alert('Pilih kelas dulu ya sebelum scan QR!');
+            setTimeout(() => { isProcessing = false; }, 2000);
+            return;
+        }
+
+        let dataLokal = JSON.parse(localStorage.getItem('dataAbsensi') || '[]');
+        
+        // Filter riwayat khusus untuk siswa yang sedang di-scan ini
+        let riwayatSiswa = dataLokal.filter(item => item.nama === decodedText);
+        let statusAbsen = "";
+
+        if (riwayatSiswa.length === 0) {
+            // JIKA BELUM PERNAH SCAN -> Dianggap MASUK SEKOLAH
+            statusAbsen = "Masuk";
+        } else if (riwayatSiswa.length === 1) {
+            // JIKA SUDAH 1x SCAN -> Cek Jeda Waktu (Mencegah Scan Beruntun Tanpa Sengaja)
+            let lastScanTime = riwayatSiswa[0].timestamp;
+            let nowTime = Date.now();
+            let selisihMenit = (nowTime - lastScanTime) / 1000 / 60;
+
+            if (selisihMenit < 5) { // Batasan Jeda waktu minimal 5 menit
+                isProcessing = true;
+                speakGoogle("Mohon tunggu beberapa saat untuk scan pulang");
+                alert(`Gagal! ${decodedText} baru saja melakukan scan masuk. Beri jeda 5 menit untuk bisa scan pulang.`);
+                setTimeout(() => { isProcessing = false; }, 3000);
+                return;
+            }
+            // Jika sudah lewat 5 menit -> Dianggap PULANG SEKOLAH
+            statusAbsen = "Pulang";
+        } else {
+            // JIKA SUDAH 2x SCAN -> DITOLAK
+            isProcessing = true;
+            speakGoogle("Maaf, kamu sudah absen masuk dan pulang hari ini");
+            alert(`Siswa atas nama ${decodedText} sudah melakukan absensi masuk dan pulang lengkap untuk hari ini.`);
+            setTimeout(() => { isProcessing = false; }, 3000);
+            return;
+        }
+
+        isProcessing = true;
+        
+        // Google Voice berbicara sesuai statusnya
+        if (statusAbsen === "Masuk") {
+            speakGoogle("Scan berhasil, selamat pagi");
+        } else {
+            speakGoogle("Scan berhasil, hati-hati di jalan");
+        }
+
+        // Simpan Data Baru ke Memori HP
+        let dataBaru = {
+            timestamp: Date.now(),
+            waktu: new Date().toLocaleString('id-ID'),
+            nama: decodedText,
+            kelas: kelasDipilih,
+            status: statusAbsen
+        };
+
+        dataLokal.push(dataBaru);
+        localStorage.setItem('dataAbsensi', JSON.stringify(dataLokal));
+
+        renderHistory();
+
+        // Beri jeda 3 detik sebelum kamera siap memindai siswa berikutnya
+        setTimeout(() => { isProcessing = false; }, 3000);
+    }
+
+    // Fungsi Download Excel Spesial untuk WPS Office (Urut Per Kelas)
+    function downloadExcel() {
+        let dataLokal = JSON.parse(localStorage.getItem('dataAbsensi') || '[]');
+        if (dataLokal.length === 0) {
+            speakGoogle("Data masih kosong");
+            alert('Belum ada data untuk di-download!');
+            return;
+        }
+
+        // PROSES SORTING: Urutkan data berdasarkan abjad KELAS (7A ke 9F), lalu berdasarkan NAMA
+        dataLokal.sort((a, b) => {
+            if (a.kelas !== b.kelas) return a.kelas.localeCompare(b.kelas);
+            return a.nama.localeCompare(b.nama);
+        });
+
+        // Format CSV khusus WPS Office menggunakan titik koma (;) agar otomatis berkolom rapi
+        let csvContent = "\uFEFFWaktu Absen;Nama Siswa;Kelas;Keterangan\n";
+        dataLokal.forEach(row => {
+            csvContent += `"${row.waktu}";"${row.nama}";"${row.kelas}";"${row.status}"\n`;
+        });
+
+        let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        let url = URL.createObjectURL(blob);
+        let link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "Data_Absensi_SMPN2_Sukaratu_Rapi.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function hapusData() {
+        if (confirm('Hapus seluruh log absen? Pastikan data hari ini sudah kamu download!')) {
+            localStorage.removeItem('dataAbsensi');
+            renderHistory();
+            speakGoogle("Data berhasil di reset");
+        }
+    }
+
+    // Aktifkan Kamera Scanner
+    const html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader", { fps: 15, qrbox: {width: 230, height: 230} }, false);
+    html5QrcodeScanner.render(onScanSuccess);
+
+    renderHistory();
+</script>
+
+</body>
+</html>
